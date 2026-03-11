@@ -47,16 +47,22 @@ const router = useRouter();
 const register = async () => {
     try {
         const res = await api.post('/register', { name: name.value, email: email.value, password: password.value });
-        if (res.data.token) {
-            localStorage.setItem('token', res.data.token);
+        if (res.data.access_token) {
+            localStorage.setItem('token', res.data.access_token);
             if (res.data.user) {
                  localStorage.setItem('user', JSON.stringify(res.data.user));
             }
             window.dispatchEvent(new Event('auth-change'));
             router.replace('/user');
         }
-    } catch (err) {
-        error.value = "Error al registrarse";
+    } catch (err: any) {
+        if (err.response && err.response.data && err.response.data.errors) {
+            error.value = Object.values(err.response.data.errors).flat().join(' ');
+        } else if (err.response && err.response.data && err.response.data.message) {
+            error.value = err.response.data.message;
+        } else {
+            error.value = "Error al registrarse";
+        }
     }
 };
 </script>

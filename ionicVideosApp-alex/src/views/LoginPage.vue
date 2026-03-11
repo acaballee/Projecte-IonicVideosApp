@@ -42,16 +42,20 @@ const router = useRouter();
 const login = async () => {
     try {
         const res = await api.post('/login', { email: email.value, password: password.value });
-        if (res.data.token) {
-            localStorage.setItem('token', res.data.token);
+        if (res.data.access_token) {
+            localStorage.setItem('token', res.data.access_token);
             if (res.data.user) {
                  localStorage.setItem('user', JSON.stringify(res.data.user));
             }
             window.dispatchEvent(new Event('auth-change'));
             router.replace('/user');
         }
-    } catch (err) {
-        error.value = "Credenciales incorrectas";
+    } catch (err: any) {
+        if (err.response && err.response.data && err.response.data.message) {
+            error.value = err.response.data.message;
+        } else {
+            error.value = "Credenciales incorrectas";
+        }
     }
 };
 </script>
